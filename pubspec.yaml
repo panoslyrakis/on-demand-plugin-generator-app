@@ -5,8 +5,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.5.0 <4.0.0'
-  flutter: ">=3.24.0"
+  sdk: '>=3.7.2 <4.0.0'  # Updated to match the actual requirement
+  flutter: ">=3.27.0"    # Updated to match Flutter version that includes Dart 3.7.x
 
 dependencies:
   flutter:
