@@ -16,7 +16,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.2'  # Match your local version
+          flutter-version: '3.29.2'
           channel: 'stable'
           cache: false
       
@@ -29,13 +29,28 @@ jobs:
         run: flutter pub get
       
       - name: Build macOS
-        run: flutter build macos --release
+        run: |
+          flutter build macos --release --tree-shake-icons --split-debug-info=build/debug-info
+          
+          # Strip debug symbols
+          cd build/macos/Build/Products/Release
+          find . -name "*.app" -type d | while read app; do
+            echo "Processing $app"
+            # Strip main executable
+            strip -S "$app/Contents/MacOS/"*
+            # Strip frameworks
+            find "$app/Contents/Frameworks" -name "*" -type f -perm +111 -exec strip -S {} \; 2>/dev/null || true
+          done
+          
+          # Create a more efficient zip
+          zip -r -9 -y --symlinks macos-build.zip *.app
       
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: build/macos/Build/Products/Release/
+          path: build/macos/Build/Products/Release/macos-build.zip
+          retention-days: 30
 
   build-windows:
     runs-on: windows-latest
@@ -46,7 +61,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.2'  # Match your local version
+          flutter-version: '3.29.2'
           channel: 'stable'
           cache: false
 
@@ -59,13 +74,20 @@ jobs:
         run: flutter pub get
       
       - name: Build Windows
-        run: flutter build windows --release
+        run: |
+          flutter build windows --release --tree-shake-icons --split-debug-info=build\debug-info
+      
+      - name: Compress Windows build
+        run: |
+          cd build\windows\x64\runner\Release
+          Compress-Archive -Path * -DestinationPath windows-build.zip -CompressionLevel Optimal
       
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: build/windows/x64/runner/Release/
+          path: build\windows\x64\runner\Release\windows-build.zip
+          retention-days: 30
 
   build-linux:
     runs-on: ubuntu-latest
@@ -76,7 +98,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.2'  # Match your local version
+          flutter-version: '3.29.2'
           channel: 'stable'
           cache: false
       
@@ -94,10 +116,44 @@ jobs:
         run: flutter pub get
       
       - name: Build Linux
-        run: flutter build linux --release
+        run: |
+          flutter build linux --release --tree-shake-icons --split-debug-info=build/debug-info
+          
+          # Strip debug symbols
+          cd build/linux/x64/release/bundle
+          find . -type f -executable -exec strip {} \; 2>/dev/null || true
+          
+          # Create launch script
+          cat > launch.sh << 'EOF'
+#!/bin/bash
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+chmod +x "$SCRIPT_DIR/plugin_generator"
+"$SCRIPT_DIR/plugin_generator"
+EOF
+          chmod +x launch.sh
+          
+          # Create README
+          cat > README.txt << 'EOF'
+Plugin Generator - Linux Version
+
+TO RUN:
+1. Extract the archive: tar -xzf linux-build.tar.gz
+2. Run: ./launch.sh
+   OR directly: ./plugin_generator
+
+IF IT DOESN'T WORK:
+Install required libraries:
+- Ubuntu/Debian: sudo apt-get install libgtk-3-0 libblkid1 liblzma5
+- Fedora: sudo dnf install gtk3
+- Arch: sudo pacman -S gtk3
+EOF
+          
+          # Create tarball
+          tar -czf linux-build.tar.gz *
       
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-build
-          path: build/linux/x64/release/bundle/
+          path: build/linux/x64/release/bundle/linux-build.tar.gz
+          retention-days: 30
