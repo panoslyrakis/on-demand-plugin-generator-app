@@ -40,10 +40,14 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          #flutter-version: '3.32.1'  # Updated version
+          flutter-version: '3.32.1'  # Updated version
           channel: 'stable'
-          cache: true
-      
+          cache: false
+
+      - name: Print Flutter and Dart versions
+        run: |
+          flutter --version
+          dart --version          
       - name: Get dependencies
         run: flutter pub get
       
