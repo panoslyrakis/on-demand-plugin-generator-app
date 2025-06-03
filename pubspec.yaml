@@ -1,0 +1,57 @@
+name: plugin_generator
+description: A Flutter desktop application for generating plugins with Go backend integration.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.2.2
+  file_picker: ^6.1.1
+  
+  # Git operations
+  git: ^2.2.1                    # Pure Dart Git implementation
+  #process: ^5.0.0               # For running git commands
+  
+  # File operations
+  path: ^1.8.3
+  io: ^1.0.4
+  
+  # HTTP for API calls
+  http: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+
+# Flutter Launcher Icons configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  windows:
+    generate: true
+    image_path: "assets/icons/icon.png"
+    icon_size: 48 # Size for Windows taskbar
+  macos:
+    generate: true
+    image_path: "assets/icons/icon.png"
+  linux:
+    generate: true
+    image_path: "assets/icons/icon.png"
+  image_path: "assets/icons/icon.png" # Your 532x532 icon
+  min_sdk_android: 21 # Support for adaptive icons
+
+flutter:
+  uses-material-design: true
+  
+  # Assets for logo and images
+  assets:
+    - assets/images/
+    - assets/icons/
