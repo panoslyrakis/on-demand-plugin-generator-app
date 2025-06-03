@@ -16,8 +16,14 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'  # Updated to support Dart 3.7.x
+          flutter-version: '3.29.2'  # Match your local version
           channel: 'stable'
+          cache: false
+      
+      - name: Print Flutter and Dart versions
+        run: |
+          flutter --version
+          dart --version
       
       - name: Get dependencies
         run: flutter pub get
@@ -40,7 +46,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'  # Updated to support Dart 3.7.x
+          flutter-version: '3.29.2'  # Match your local version
           channel: 'stable'
           cache: false
 
@@ -70,8 +76,14 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'  # Updated to support Dart 3.7.x
+          flutter-version: '3.29.2'  # Match your local version
           channel: 'stable'
+          cache: false
+      
+      - name: Print Flutter and Dart versions
+        run: |
+          flutter --version
+          dart --version
       
       - name: Install Linux dependencies
         run: |
